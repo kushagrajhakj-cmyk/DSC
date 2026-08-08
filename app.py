@@ -1,9 +1,8 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
+import plotly.graph_objects as go
 import streamlit as st
 
-st.title("Exo-up DSC Stacked Plot Dashboard")
+st.title("Exo-up DSC Stacked Plot Dashboard (Plotly Style)")
 
 # === File Upload ===
 uploaded_files = st.file_uploader(
@@ -13,7 +12,6 @@ uploaded_files = st.file_uploader(
 )
 
 if uploaded_files:
-    # Dictionary to store selected sheets per file
     selected_sheets = {}
     for file in uploaded_files:
         xls = pd.ExcelFile(file)
@@ -56,7 +54,6 @@ if uploaded_files:
         default=curve_order
     )
 
-    # Editable labels
     custom_labels = {}
     for label in ordered_curves:
         custom_labels[label] = st.text_input(f"Custom legend label for {label}:", label)
@@ -80,33 +77,35 @@ if uploaded_files:
                 curves[f"{file.name} - {sheet}"] = df
 
         if curves:
-            # Create font properties object
-            font_prop = FontProperties(family=font_family)
+            fig = go.Figure()
 
-            plt.figure(figsize=(8,6))
             for i, label in enumerate(ordered_curves):
                 df = curves[label]
-                plt.plot(
-                    df["Temperature"],
-                    df["Heat Flow (Normalized)"] + i*offset,
-                    label=custom_labels[label],
-                    linewidth=line_weight
-                )
+                fig.add_trace(go.Scatter(
+                    x=df["Temperature"],
+                    y=df["Heat Flow (Normalized)"] + i*offset,
+                    mode="lines",
+                    name=custom_labels[label],
+                    line=dict(width=line_weight)
+                ))
 
-            plt.xlabel(xlabel, fontsize=axis_label_size, fontproperties=font_prop)
-            plt.ylabel(ylabel, fontsize=axis_label_size, fontproperties=font_prop)
-            plt.title(plot_title, fontsize=title_size, fontproperties=font_prop)
-            plt.legend(prop=font_prop, fontsize=axis_label_size-2)
+            fig.update_layout(
+                title=dict(text=plot_title, font=dict(size=title_size, family=font_family)),
+                xaxis=dict(
+                    title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family)),
+                    tickfont=dict(size=tick_size, family=font_family),
+                    showgrid=grid_enabled
+                ),
+                yaxis=dict(
+                    title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family)),
+                    tickfont=dict(size=tick_size, family=font_family),
+                    showgrid=grid_enabled,
+                    showticklabels=False  # hide y-axis numbers
+                ),
+                legend=dict(font=dict(size=axis_label_size-2, family=font_family)),
+                template="simple_white"
+            )
 
-            # Hide y-axis numbers
-            plt.yticks([])
-
-            # Customize tick font sizes
-            plt.xticks(fontsize=tick_size, fontproperties=font_prop)
-
-            if grid_enabled:
-                plt.grid(True, linestyle="--", alpha=0.5)
-            plt.tight_layout()
-            st.pyplot(plt)
+            st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning("No data selected.")
