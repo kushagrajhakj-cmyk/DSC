@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib as mpl
+from matplotlib.font_manager import FontProperties
 import streamlit as st
 
 st.title("Exo-up DSC Stacked Plot Dashboard")
@@ -80,8 +80,8 @@ if uploaded_files:
                 curves[f"{file.name} - {sheet}"] = df
 
         if curves:
-            # Apply global font settings
-            mpl.rcParams['font.family'] = font_family
+            # Create font properties object
+            font_prop = FontProperties(family=font_family)
 
             plt.figure(figsize=(8,6))
             for i, label in enumerate(ordered_curves):
@@ -93,16 +93,16 @@ if uploaded_files:
                     linewidth=line_weight
                 )
 
-            plt.xlabel(xlabel, fontsize=axis_label_size)
-            plt.ylabel(ylabel, fontsize=axis_label_size)
-            plt.title(plot_title, fontsize=title_size)
-            plt.legend(fontsize=axis_label_size-2)
+            plt.xlabel(xlabel, fontsize=axis_label_size, fontproperties=font_prop)
+            plt.ylabel(ylabel, fontsize=axis_label_size, fontproperties=font_prop)
+            plt.title(plot_title, fontsize=title_size, fontproperties=font_prop)
+            plt.legend(prop=font_prop, fontsize=axis_label_size-2)
 
             # Hide y-axis numbers
             plt.yticks([])
 
             # Customize tick font sizes
-            plt.xticks(fontsize=tick_size)
+            plt.xticks(fontsize=tick_size, fontproperties=font_prop)
 
             if grid_enabled:
                 plt.grid(True, linestyle="--", alpha=0.5)
