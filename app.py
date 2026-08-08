@@ -97,22 +97,25 @@ if uploaded_files:
                     title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family, color="black")),
                     tickfont=dict(size=tick_size, family=font_family, color="black"),
                     showgrid=grid_enabled,
-                    linecolor="black",   # axis line black
+                    linecolor="black",
                     mirror=True,
-                    zeroline=False,      # remove middle line
-                    tickcolor="black"    # tick marks black
+                    zeroline=False,
+                    tickcolor="black"
                 ),
                 yaxis=dict(
                     title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family, color="black")),
                     tickfont=dict(size=tick_size, family=font_family, color="black"),
                     showgrid=grid_enabled,
-                    showticklabels=False,  # hide y-axis numbers
-                    linecolor="black",     # axis line black
+                    showticklabels=False,
+                    linecolor="black",
                     mirror=True,
-                    zeroline=False,        # remove middle line
-                    tickcolor="black"      # tick marks black
+                    zeroline=False,
+                    tickcolor="black"
                 ),
-                legend=dict(font=dict(size=axis_label_size-2, family=font_family, color="black")),
+                legend=dict(
+                    font=dict(size=axis_label_size-2, family=font_family, color="black"),
+                    traceorder="normal"   # preserve order of traces
+                ),
                 plot_bgcolor="white",
                 paper_bgcolor="white"
             )
