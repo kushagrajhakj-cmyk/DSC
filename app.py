@@ -92,22 +92,22 @@ if uploaded_files:
                 ))
 
             fig.update_layout(
-                title=dict(text=plot_title, font=dict(size=title_size, family=font_family)),
+                title=dict(text=plot_title, font=dict(size=title_size, family=font_family, color="black")),
                 xaxis=dict(
-                    title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family)),
+                    title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family, color="black")),
                     tickfont=dict(size=tick_size, family=font_family, color="black"),
                     showgrid=grid_enabled,
-                    linecolor="black",   # force black axis line
+                    linecolor="black",   # axis line black
                     mirror=True,
                     zeroline=False,      # remove middle line
                     tickcolor="black"    # tick marks black
                 ),
                 yaxis=dict(
-                    title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family)),
+                    title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family, color="black")),
                     tickfont=dict(size=tick_size, family=font_family, color="black"),
                     showgrid=grid_enabled,
                     showticklabels=False,  # hide y-axis numbers
-                    linecolor="black",     # force black axis line
+                    linecolor="black",     # axis line black
                     mirror=True,
                     zeroline=False,        # remove middle line
                     tickcolor="black"      # tick marks black
