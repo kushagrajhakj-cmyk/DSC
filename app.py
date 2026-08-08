@@ -94,16 +94,21 @@ if uploaded_files:
                 xaxis=dict(
                     title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family)),
                     tickfont=dict(size=tick_size, family=font_family),
-                    showgrid=grid_enabled
+                    showgrid=grid_enabled,
+                    linecolor="black",   # axis line color
+                    mirror=True          # draw axis lines on both sides
                 ),
                 yaxis=dict(
                     title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family)),
                     tickfont=dict(size=tick_size, family=font_family),
                     showgrid=grid_enabled,
-                    showticklabels=False  # hide y-axis numbers
+                    showticklabels=False,  # hide y-axis numbers
+                    linecolor="black",     # axis line color
+                    mirror=True
                 ),
                 legend=dict(font=dict(size=axis_label_size-2, family=font_family)),
-                template="simple_white"
+                plot_bgcolor="white",
+                paper_bgcolor="white"
             )
 
             st.plotly_chart(fig, use_container_width=True)
