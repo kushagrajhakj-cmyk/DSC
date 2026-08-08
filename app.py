@@ -39,17 +39,23 @@ if uploaded_files:
     # Offset
     offset = st.number_input("Offset for stacking:", value=0.5, step=0.1)
 
-    # Order selection
-    st.subheader("Stacking Order")
+    # === Curve Order and Custom Labels ===
+    st.subheader("Stacking Order and Labels")
     curve_order = []
     for file in uploaded_files:
         for sheet in selected_sheets[file.name]:
             curve_order.append(f"{file.name} - {sheet}")
+
     ordered_curves = st.multiselect(
         "Select order of curves (top to bottom):",
         curve_order,
         default=curve_order
     )
+
+    # Editable labels
+    custom_labels = {}
+    for label in ordered_curves:
+        custom_labels[label] = st.text_input(f"Custom legend label for {label}:", label)
 
     # === Plot Button ===
     if st.button("Generate Plot"):
@@ -76,7 +82,7 @@ if uploaded_files:
                 plt.plot(
                     df["Temperature"],
                     df["Heat Flow (Normalized)"] + i*offset,
-                    label=label,
+                    label=custom_labels[label],
                     linewidth=line_weight
                 )
 
