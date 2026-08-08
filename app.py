@@ -29,7 +29,10 @@ if uploaded_files:
     ylabel = st.text_input("Y-axis Label:", "Heat flow (a.u.)")
 
     font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"])
-    font_size = st.slider("Font Size:", 8, 20, 12)
+    title_size = st.slider("Title Font Size:", 8, 30, 16)
+    axis_label_size = st.slider("Axis Label Font Size:", 8, 25, 14)
+    tick_size = st.slider("Axis Tick Font Size:", 6, 20, 12)
+
     line_weight = st.slider("Line Width:", 1, 5, 2)
     grid_enabled = st.checkbox("Show Grid", True)
 
@@ -86,10 +89,17 @@ if uploaded_files:
                     linewidth=line_weight
                 )
 
-            plt.xlabel(xlabel, fontsize=font_size, fontname=font_family)
-            plt.ylabel(ylabel, fontsize=font_size, fontname=font_family)
-            plt.title(plot_title, fontsize=font_size+2, fontname=font_family)
-            plt.legend(fontsize=font_size-2)
+            plt.xlabel(xlabel, fontsize=axis_label_size, fontname=font_family)
+            plt.ylabel(ylabel, fontsize=axis_label_size, fontname=font_family)
+            plt.title(plot_title, fontsize=title_size, fontname=font_family)
+            plt.legend(fontsize=axis_label_size-2)
+
+            # Hide y-axis ticks completely
+            plt.yticks([])
+
+            # Customize tick font sizes
+            plt.xticks(fontsize=tick_size, fontname=font_family)
+
             if grid_enabled:
                 plt.grid(True, linestyle="--", alpha=0.5)
             plt.tight_layout()
