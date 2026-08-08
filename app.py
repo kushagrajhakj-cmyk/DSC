@@ -14,7 +14,6 @@ uploaded_files = st.file_uploader(
 if uploaded_files:
     # Dictionary to store selected sheets per file
     selected_sheets = {}
-
     for file in uploaded_files:
         xls = pd.ExcelFile(file)
         sheets = xls.sheet_names
@@ -22,15 +21,39 @@ if uploaded_files:
             f"Select sheets from {file.name}:", sheets
         )
 
+    # === Customization Options ===
+    st.subheader("Plot Customization")
+
+    plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
+    xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
+    ylabel = st.text_input("Y-axis Label:", "Heat flow (a.u.)")
+
+    font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"])
+    font_size = st.slider("Font Size:", 8, 20, 12)
+    line_weight = st.slider("Line Width:", 1, 5, 2)
+    grid_enabled = st.checkbox("Show Grid", True)
+
     # Temperature range
     min_temp, max_temp = st.slider("Temperature range (°C):", 0, 300, (0, 300))
 
     # Offset
     offset = st.number_input("Offset for stacking:", value=0.5, step=0.1)
 
-    # Plot button
+    # Order selection
+    st.subheader("Stacking Order")
+    curve_order = []
+    for file in uploaded_files:
+        for sheet in selected_sheets[file.name]:
+            curve_order.append(f"{file.name} - {sheet}")
+    ordered_curves = st.multiselect(
+        "Select order of curves (top to bottom):",
+        curve_order,
+        default=curve_order
+    )
+
+    # === Plot Button ===
     if st.button("Generate Plot"):
-        curves = []
+        curves = {}
         for file in uploaded_files:
             for sheet in selected_sheets[file.name]:
                 df = pd.read_excel(file, sheet_name=sheet)
@@ -44,18 +67,25 @@ if uploaded_files:
                 # Apply temperature range
                 df = df[(df["Temperature"] >= min_temp) & (df["Temperature"] <= max_temp)]
 
-                curves.append((df, f"{file.name} - {sheet}"))
+                curves[f"{file.name} - {sheet}"] = df
 
         if curves:
             plt.figure(figsize=(8,6))
-            for i, (df, label) in enumerate(curves):
-                plt.plot(df["Temperature"], df["Heat Flow (Normalized)"] + i*offset, label=label)
+            for i, label in enumerate(ordered_curves):
+                df = curves[label]
+                plt.plot(
+                    df["Temperature"],
+                    df["Heat Flow (Normalized)"] + i*offset,
+                    label=label,
+                    linewidth=line_weight
+                )
 
-            plt.xlabel("Temperature (°C)", fontsize=12, fontname="Times New Roman")
-            plt.ylabel("Heat flow (a.u.)", fontsize=12, fontname="Times New Roman")
-            plt.title("Exo-up DSC stacked plot", fontsize=14, fontname="Times New Roman")
-            plt.legend(fontsize=9)
-            plt.grid(True, linestyle="--", alpha=0.5)
+            plt.xlabel(xlabel, fontsize=font_size, fontname=font_family)
+            plt.ylabel(ylabel, fontsize=font_size, fontname=font_family)
+            plt.title(plot_title, fontsize=font_size+2, fontname=font_family)
+            plt.legend(fontsize=font_size-2)
+            if grid_enabled:
+                plt.grid(True, linestyle="--", alpha=0.5)
             plt.tight_layout()
             st.pyplot(plt)
         else:
