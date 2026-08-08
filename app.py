@@ -42,7 +42,7 @@ if uploaded_files:
     offset = st.number_input("Offset for stacking:", value=0.5, step=0.1)
 
     # === Curve Order and Custom Labels ===
-    st.subheader("Stacking Order and Labels")
+    st.subheader("Stacking Order, Labels, and Colors")
     curve_order = []
     for file in uploaded_files:
         for sheet in selected_sheets[file.name]:
@@ -55,8 +55,10 @@ if uploaded_files:
     )
 
     custom_labels = {}
+    custom_colors = {}
     for label in ordered_curves:
         custom_labels[label] = st.text_input(f"Custom legend label for {label}:", label)
+        custom_colors[label] = st.color_picker(f"Line color for {label}:", "#000000")
 
     # === Plot Button ===
     if st.button("Generate Plot"):
@@ -86,29 +88,31 @@ if uploaded_files:
                     y=df["Heat Flow (Normalized)"] + i*offset,
                     mode="lines",
                     name=custom_labels[label],
-                    line=dict(width=line_weight)
+                    line=dict(width=line_weight, color=custom_colors[label])
                 ))
 
             fig.update_layout(
                 title=dict(text=plot_title, font=dict(size=title_size, family=font_family)),
                 xaxis=dict(
                     title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family)),
-                    tickfont=dict(size=tick_size, family=font_family),
+                    tickfont=dict(size=tick_size, family=font_family, color="black"),
                     showgrid=grid_enabled,
                     linecolor="black",   # force black axis line
                     mirror=True,
-                    zeroline=False        # remove middle line
+                    zeroline=False,      # remove middle line
+                    tickcolor="black"    # tick marks black
                 ),
                 yaxis=dict(
                     title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family)),
-                    tickfont=dict(size=tick_size, family=font_family),
+                    tickfont=dict(size=tick_size, family=font_family, color="black"),
                     showgrid=grid_enabled,
                     showticklabels=False,  # hide y-axis numbers
                     linecolor="black",     # force black axis line
                     mirror=True,
-                    zeroline=False         # remove middle line
+                    zeroline=False,        # remove middle line
+                    tickcolor="black"      # tick marks black
                 ),
-                legend=dict(font=dict(size=axis_label_size-2, family=font_family)),
+                legend=dict(font=dict(size=axis_label_size-2, family=font_family, color="black")),
                 plot_bgcolor="white",
                 paper_bgcolor="white"
             )
