@@ -23,16 +23,17 @@ if uploaded_files:
     # === Customization Options ===
     st.subheader("Plot Customization")
 
+    # ✅ Default values set here
     plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
     ylabel = st.text_input("Y-axis Label:", "Heat flow (a.u.)")
 
-    font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"])
-    title_size = st.slider("Title Font Size:", 8, 30, 16)
-    axis_label_size = st.slider("Axis Label Font Size:", 8, 25, 14)
-    tick_size = st.slider("Axis Tick Font Size:", 6, 20, 12)
+    font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"], index=0)
+    title_size = st.slider("Title Font Size:", 8, 30, 25)          # default 25
+    axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25) # default 25
+    tick_size = st.slider("Axis Tick Font Size:", 6, 25, 20)        # default 20
 
-    line_weight = st.slider("Line Width:", 1, 5, 2)
+    line_weight = st.slider("Line Width:", 1, 5, 2)                 # default 2
     grid_enabled = st.checkbox("Show Grid", True)
 
     # Temperature range
@@ -54,10 +55,19 @@ if uploaded_files:
         default=curve_order
     )
 
+    # ✅ Default legend labels with proper degree notation
+    default_labels = {
+        0: "5 °C/min",
+        1: "10 °C/min",
+        2: "20 °C/min",
+        3: "30 °C/min"
+    }
+
     custom_labels = {}
     custom_colors = {}
-    for label in ordered_curves:
-        custom_labels[label] = st.text_input(f"Custom legend label for {label}:", label)
+    for i, label in enumerate(ordered_curves):
+        default_label = default_labels.get(i, label)
+        custom_labels[label] = st.text_input(f"Custom legend label for {label}:", default_label)
         custom_colors[label] = st.color_picker(f"Line color for {label}:", "#000000")
 
     # === Plot Button ===
@@ -114,7 +124,7 @@ if uploaded_files:
                 ),
                 legend=dict(
                     font=dict(size=axis_label_size-2, family=font_family, color="black"),
-                    traceorder="normal"   # preserve order of traces
+                    traceorder="normal"
                 ),
                 plot_bgcolor="white",
                 paper_bgcolor="white"
