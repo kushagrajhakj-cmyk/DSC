@@ -23,11 +23,11 @@ if uploaded_files:
     # === Customization Options ===
     st.subheader("Plot Customization")
 
-    # ✅ Default values set here
     plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
     ylabel = st.text_input("Y-axis Label:", "Heat flow (a.u.)")
 
+    # ✅ Default font family and sizes
     font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"], index=0)
     title_size = st.slider("Title Font Size:", 8, 30, 25)          # default 25
     axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25) # default 25
@@ -63,12 +63,21 @@ if uploaded_files:
         3: "30 °C/min"
     }
 
+    # ✅ Default colors for first four curves
+    default_colors = {
+        0: "#F60505",  # red
+        1: "#F2DA09",  # yellow
+        2: "#0E19E8",  # blue
+        3: "#F00FEC"   # magenta
+    }
+
     custom_labels = {}
     custom_colors = {}
     for i, label in enumerate(ordered_curves):
         default_label = default_labels.get(i, label)
+        default_color = default_colors.get(i, "#000000")
         custom_labels[label] = st.text_input(f"Custom legend label for {label}:", default_label)
-        custom_colors[label] = st.color_picker(f"Line color for {label}:", "#000000")
+        custom_colors[label] = st.color_picker(f"Line color for {label}:", default_color)
 
     # === Plot Button ===
     if st.button("Generate Plot"):
