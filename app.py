@@ -133,12 +133,28 @@ if uploaded_files:
                 ),
                 legend=dict(
                     font=dict(size=axis_label_size-2, family=font_family, color="black"),
-                    traceorder="normal"
+                    traceorder="normal",
+                    orientation="h",       # horizontal legend
+                    yanchor="bottom",
+                    y=1.02,                # just above the plot
+                    xanchor="center",
+                    x=0.5
                 ),
                 plot_bgcolor="white",
                 paper_bgcolor="white"
             )
 
             st.plotly_chart(fig, use_container_width=True)
+
+            # ✅ Export PNG option
+            import io
+            buf = io.BytesIO()
+            fig.write_image(buf, format="png")  # requires kaleido
+            st.download_button(
+                label="Download Plot as PNG",
+                data=buf.getvalue(),
+                file_name="dsc_plot.png",
+                mime="image/png"
+            )
         else:
             st.warning("No data selected.")
