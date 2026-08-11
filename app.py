@@ -25,7 +25,7 @@ if uploaded_files:
 
     plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
-    ylabel = st.text_input("Y-axis Label:", "Heat flow (a.u.)")
+    ylabel = st.text_input("Y-axis Label:", "Heat flow (mW) (Exo up)")
 
     # ✅ Default font family and sizes
     font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"], index=0)
