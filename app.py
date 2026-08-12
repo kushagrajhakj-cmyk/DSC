@@ -140,7 +140,7 @@ if uploaded_files:
 
             st.plotly_chart(fig, use_container_width=True)
 
-            # Robust download handling
+            # ✅ Robust PNG download
             try:
                 img_bytes = pio.to_image(fig, format="png", engine="json")
                 buf = io.BytesIO(img_bytes)
