@@ -133,7 +133,7 @@ if uploaded_files:
             ax.annotate(
                 "Exo",
                 xy=(-0.08, 0.45), xycoords=("axes fraction", "axes fraction"),   # text placed mid-left
-                xytext=(-0.08, 0.8), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward a bit
+                xytext=(-0.08, 0.7), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward a bit
                 arrowprops=dict(arrowstyle="->", linewidth=2),
                 ha="center", va="center", rotation=90,
                 fontproperties=make_font(axis_label_size)
