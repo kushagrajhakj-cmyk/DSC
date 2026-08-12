@@ -7,11 +7,11 @@ import io
 
 st.title("Exo-up DSC Stacked Plot Dashboard (Matplotlib Style)")
 
-# ✅ Try to set Times New Roman globally
+# ✅ Try to load Times New Roman explicitly
 try:
-    mpl.rcParams['font.family'] = 'Times New Roman'
+    times_new_roman = fm.FontProperties(fname="/usr/share/fonts/truetype/msttcorefonts/times.ttf")
 except Exception:
-    st.warning("Times New Roman not found, falling back to default font.")
+    times_new_roman = fm.FontProperties(family="serif")
 
 # === File Upload ===
 uploaded_files = st.file_uploader(
@@ -50,6 +50,9 @@ if uploaded_files:
     st.subheader("Legend and Annotation Settings")
     legend_size = st.slider("Legend Font Size:", 8, 30, 15)
     label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
+
+    # === Tick Spacing Control ===
+    tick_step = st.selectbox("Tick spacing (°C):", [25, 50, 100], index=1)
 
     # === Curve Order and Custom Labels ===
     st.subheader("Stacking Order, Labels, and Colors")
@@ -107,20 +110,24 @@ if uploaded_files:
                     df["Heat Flow (Normalized)"].iloc[-1] + i*offset + label_gap,
                     custom_labels[label],
                     fontsize=legend_size,
+                    fontproperties=times_new_roman,
                     color=custom_colors[label],
                     va="bottom", ha="left"
                 )
 
-            ax.set_title(plot_title, fontsize=title_size)
-            ax.set_xlabel(xlabel, fontsize=axis_label_size)
-            ax.set_ylabel(ylabel, fontsize=axis_label_size)
+            ax.set_title(plot_title, fontsize=title_size, fontproperties=times_new_roman)
+            ax.set_xlabel(xlabel, fontsize=axis_label_size, fontproperties=times_new_roman)
+            ax.set_ylabel(ylabel, fontsize=axis_label_size, fontproperties=times_new_roman)
             ax.tick_params(axis="x", labelsize=tick_size)
             ax.tick_params(axis="y", labelsize=tick_size)
             ax.grid(grid_enabled)
 
-            # Force min/max ticks on x-axis
+            # ✅ Dynamic ticks with endpoints always visible
+            tickvals = list(range(min_temp, max_temp+1, tick_step))
+            if tickvals[-1] != max_temp:
+                tickvals.append(max_temp)
             ax.set_xlim(min_temp, max_temp)
-            ax.set_xticks(range(min_temp, max_temp+1, 50))
+            ax.set_xticks(tickvals)
 
             st.pyplot(fig)
 
