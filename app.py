@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import io
 
 st.title("Exo-up DSC Stacked Plot Dashboard (Plotly Style)")
 
@@ -27,19 +28,15 @@ if uploaded_files:
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
     ylabel = st.text_input("Y-axis Label:", "Heat flow (mW) (Exo up)")
 
-    # ✅ Default font family and sizes
     font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"], index=0)
-    title_size = st.slider("Title Font Size:", 8, 30, 25)          # default 25
-    axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25) # default 25
-    tick_size = st.slider("Axis Tick Font Size:", 6, 25, 20)        # default 20
+    title_size = st.slider("Title Font Size:", 8, 30, 25)
+    axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25)
+    tick_size = st.slider("Axis Tick Font Size:", 6, 25, 20)
 
-    line_weight = st.slider("Line Width:", 1, 5, 2)                 # default 2
+    line_weight = st.slider("Line Width:", 1, 5, 2)
     grid_enabled = st.checkbox("Show Grid", True)
 
-    # Temperature range
     min_temp, max_temp = st.slider("Temperature range (°C):", 0, 300, (0, 300))
-
-    # Offset
     offset = st.number_input("Offset for stacking:", value=0.5, step=0.1)
 
     # === Curve Order and Custom Labels ===
@@ -55,21 +52,8 @@ if uploaded_files:
         default=curve_order
     )
 
-    # ✅ Default legend labels with proper degree notation
-    default_labels = {
-        0: "5 °C/min",
-        1: "10 °C/min",
-        2: "20 °C/min",
-        3: "30 °C/min"
-    }
-
-    # ✅ Default colors for first four curves
-    default_colors = {
-        0: "#F60505",  # red
-        1: "#F2DA09",  # yellow
-        2: "#0E19E8",  # blue
-        3: "#F00FEC"   # magenta
-    }
+    default_labels = {0: "5 °C/min", 1: "10 °C/min", 2: "20 °C/min", 3: "30 °C/min"}
+    default_colors = {0: "#F60505", 1: "#F2DA09", 2: "#0E19E8", 3: "#F00FEC"}
 
     custom_labels = {}
     custom_colors = {}
@@ -85,16 +69,11 @@ if uploaded_files:
         for file in uploaded_files:
             for sheet in selected_sheets[file.name]:
                 df = pd.read_excel(file, sheet_name=sheet)
-
-                # Clean dataset
                 df = df[pd.to_numeric(df["Temperature"], errors="coerce").notnull()]
                 df = df[pd.to_numeric(df["Heat Flow (Normalized)"], errors="coerce").notnull()]
                 df["Temperature"] = pd.to_numeric(df["Temperature"], errors="coerce")
                 df["Heat Flow (Normalized)"] = pd.to_numeric(df["Heat Flow (Normalized)"], errors="coerce")
-
-                # Apply temperature range
                 df = df[(df["Temperature"] >= min_temp) & (df["Temperature"] <= max_temp)]
-
                 curves[f"{file.name} - {sheet}"] = df
 
         if curves:
@@ -107,8 +86,21 @@ if uploaded_files:
                     y=df["Heat Flow (Normalized)"] + i*offset,
                     mode="lines",
                     name=custom_labels[label],
-                    line=dict(width=line_weight, color=custom_colors[label])
+                    line=dict(width=line_weight, color=custom_colors[label]),
+                    showlegend=False
                 ))
+
+                # Annotation above each line
+                fig.add_annotation(
+                    x=df["Temperature"].iloc[-1],
+                    y=df["Heat Flow (Normalized)"].iloc[-1] + i*offset,
+                    text=custom_labels[label],
+                    font=dict(size=axis_label_size-2, family=font_family, color=custom_colors[label]),
+                    showarrow=False,
+                    align="left",
+                    xanchor="left",
+                    yanchor="bottom"
+                )
 
             fig.update_layout(
                 title=dict(text=plot_title, font=dict(size=title_size, family=font_family, color="black")),
@@ -119,7 +111,10 @@ if uploaded_files:
                     linecolor="black",
                     mirror=True,
                     zeroline=False,
-                    tickcolor="black"
+                    tickcolor="black",
+                    tickmode="array",
+                    tickvals=[min_temp, max_temp],
+                    ticktext=[str(min_temp), str(max_temp)]
                 ),
                 yaxis=dict(
                     title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family, color="black")),
@@ -131,25 +126,14 @@ if uploaded_files:
                     zeroline=False,
                     tickcolor="black"
                 ),
-                legend=dict(
-                    font=dict(size=axis_label_size-2, family=font_family, color="black"),
-                    traceorder="normal",
-                    orientation="h",       # horizontal legend
-                    yanchor="bottom",
-                    y=1.02,                # just above the plot
-                    xanchor="center",
-                    x=0.5
-                ),
                 plot_bgcolor="white",
                 paper_bgcolor="white"
             )
 
             st.plotly_chart(fig, use_container_width=True)
 
-            # ✅ Export PNG option
-            import io
             buf = io.BytesIO()
-            fig.write_image(buf, format="png")  # requires kaleido
+            fig.write_image(buf, format="png")
             st.download_button(
                 label="Download Plot as PNG",
                 data=buf.getvalue(),
