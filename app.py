@@ -129,11 +129,11 @@ if uploaded_files:
             ax.set_ylabel("")
             ax.set_yticks([])
 
-            # Draw a neat upward arrow with "Endo" as y-axis label
+            # Draw "Endo" with a short upward arrow above it
             ax.annotate(
                 "Endo",
-                xy=(-0.08, 0.05), xycoords=("axes fraction", "axes fraction"),   # arrow starts slightly below axis
-                xytext=(-0.08, 0.95), textcoords=("axes fraction", "axes fraction"),  # arrow ends near top
+                xy=(-0.08, 0.45), xycoords=("axes fraction", "axes fraction"),   # text placed mid-left
+                xytext=(-0.08, 0.65), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward a bit
                 arrowprops=dict(arrowstyle="->", linewidth=2),
                 ha="center", va="center", rotation=90,
                 fontproperties=make_font(axis_label_size)
