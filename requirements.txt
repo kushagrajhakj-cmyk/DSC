@@ -6,3 +6,4 @@ xlrd
 plotly
 kaleido
 cairosvg
+streamlit_plotly_events
