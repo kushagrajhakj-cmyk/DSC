@@ -55,6 +55,7 @@ if uploaded_files:
     legend_size = st.slider("Legend Font Size:", 8, 30, 15)
     label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
     label_x_offset = st.slider("Horizontal offset from y-axis:", 0.0, 2.0, 0.5, step=0.1)
+    top_margin_factor = st.slider("Extra margin factor (× label_gap):", 0.0, 3.0, 1.0, step=0.1)
 
     # === Tick Spacing Control ===
     tick_step = st.selectbox("Tick spacing (°C):", [10, 20, 30, 40, 50, 100], index=1)
@@ -146,11 +147,11 @@ if uploaded_files:
             ax.set_xlim(min_temp, max_temp)
             ax.set_xticks(tickvals)
 
-            # Extend y-limit if topmost label crosses
+            # Extend y-limit if topmost label crosses, with margin
             if max_label_y is not None:
                 ymin, ymax = ax.get_ylim()
                 if max_label_y > ymax:
-                    ax.set_ylim(ymin, max_label_y + label_gap)
+                    ax.set_ylim(ymin, max_label_y + (label_gap * top_margin_factor))
 
             st.pyplot(fig)
 
