@@ -106,15 +106,15 @@ if uploaded_files:
                     linewidth=line_weight,
                     color=custom_colors[label]
                 )
-                # Annotation above line with adjustable gap
+                # Place legend text at the leftmost side of the curve
                 ax.text(
-                    df["Temperature"].iloc[-1],
-                    df["Heat Flow (Normalized)"].iloc[-1] + i*offset + label_gap,
+                    df["Temperature"].iloc[0],   # leftmost x-value
+                    df["Heat Flow (Normalized)"].iloc[0] + i*offset + label_gap,
                     custom_labels[label],
                     fontsize=legend_size,
                     fontproperties=make_font(legend_size),
                     color=custom_colors[label],
-                    va="bottom", ha="left"
+                    va="bottom", ha="right"
                 )
 
             # ❌ Remove plot title
