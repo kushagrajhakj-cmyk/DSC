@@ -1,16 +1,20 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib import font_manager as fm
 import streamlit as st
 import io
 
 st.title("Exo-up DSC Stacked Plot Dashboard (Matplotlib Style)")
 
-# ✅ Try to load Times New Roman explicitly
-try:
-    times_new_roman = fm.FontProperties(fname="/usr/share/fonts/truetype/msttcorefonts/times.ttf")
-except Exception:
+# === Font Handling ===
+# Try to load Times New Roman if available, else fallback
+available_fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
+times_new_roman = None
+for f in available_fonts:
+    if "Times New Roman" in f:
+        times_new_roman = fm.FontProperties(fname=f)
+        break
+if times_new_roman is None:
     times_new_roman = fm.FontProperties(family="serif")
 
 # === File Upload ===
@@ -68,7 +72,6 @@ if uploaded_files:
     )
 
     default_labels = {0: "5 °C/min", 1: "10 °C/min", 2: "20 °C/min", 3: "30 °C/min"}
-    # ✅ Use hex codes for color picker compatibility
     default_colors = {0: "#FF0000", 1: "#FFA500", 2: "#0000FF", 3: "#FF00FF"}
 
     custom_labels = {}
@@ -100,7 +103,6 @@ if uploaded_files:
                 ax.plot(
                     df["Temperature"],
                     df["Heat Flow (Normalized)"] + i*offset,
-                    label=custom_labels[label],
                     linewidth=line_weight,
                     color=custom_colors[label]
                 )
