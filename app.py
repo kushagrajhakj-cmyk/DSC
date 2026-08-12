@@ -99,7 +99,7 @@ if uploaded_files:
         if curves:
             fig, ax = plt.subplots(figsize=(8, 6))
 
-            max_y_val = None  # track highest label position
+            max_label_y = None  # track highest label position
 
             for i, label in enumerate(ordered_curves):
                 df = curves[label]
@@ -121,8 +121,8 @@ if uploaded_files:
                     color=custom_colors[label],
                     va="bottom", ha="left"
                 )
-                if max_y_val is None or y_pos > max_y_val:
-                    max_y_val = y_pos
+                if max_label_y is None or y_pos > max_label_y:
+                    max_label_y = y_pos
 
             # ❌ Remove plot title
             ax.set_title("")
@@ -147,10 +147,10 @@ if uploaded_files:
             ax.set_xticks(tickvals)
 
             # Extend y-limit if topmost label crosses
-            if max_y_val is not None:
+            if max_label_y is not None:
                 ymin, ymax = ax.get_ylim()
-                if max_y_val > ymax:
-                    ax.set_ylim(ymin, max_y_val + label_gap)
+                if max_label_y > ymax:
+                    ax.set_ylim(ymin, max_label_y + label_gap)
 
             st.pyplot(fig)
 
