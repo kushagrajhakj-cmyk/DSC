@@ -101,9 +101,14 @@ if uploaded_files:
             fig, ax = plt.subplots(figsize=(8, 6))
 
             max_label_y = None  # track highest label position
+            max_curve_y = None  # track highest curve position
 
             for i, label in enumerate(ordered_curves):
                 df = curves[label]
+                curve_y = (df["Heat Flow (Normalized)"] + i*offset).max()
+                if max_curve_y is None or curve_y > max_curve_y:
+                    max_curve_y = curve_y
+
                 ax.plot(
                     df["Temperature"],
                     df["Heat Flow (Normalized)"] + i*offset,
@@ -147,13 +152,11 @@ if uploaded_files:
             ax.set_xlim(min_temp, max_temp)
             ax.set_xticks(tickvals)
 
-            # Extend y-limit if topmost label crosses, with extra margin
-            if max_label_y is not None:
-                ymin, ymax = ax.get_ylim()
-                if max_label_y > ymax:
-                    # Add margin proportional to label_gap
-                    margin = label_gap * top_margin_factor
-                    ax.set_ylim(ymin, max_label_y + margin)
+            # Extend y-limit based on max curve + label gap + margin
+            if max_curve_y is not None:
+                ymax_needed = max_curve_y + label_gap
+                margin = label_gap * top_margin_factor
+                ax.set_ylim(ax.get_ylim()[0], ymax_needed + margin)
 
             st.pyplot(fig)
 
