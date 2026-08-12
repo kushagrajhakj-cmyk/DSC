@@ -14,7 +14,6 @@ for f in available_fonts:
         times_new_roman_path = f
         break
 
-# Create FontProperties with size for title
 def make_font(size):
     if times_new_roman_path:
         return fm.FontProperties(fname=times_new_roman_path, size=size)
@@ -126,19 +125,21 @@ if uploaded_files:
             # X-axis label
             ax.set_xlabel(xlabel, fontproperties=make_font(axis_label_size))
 
-            # Clear default y-axis label and draw upward arrow with "Endo"
+            # Clear default y-axis label and ticks
             ax.set_ylabel("")
+            ax.set_yticks([])
+
+            # Draw upward arrow with "Endo" as y-axis label
             ax.annotate(
                 "Endo",
-                xy=(0, 0), xycoords=("axes fraction", "axes fraction"),
-                xytext=(0, 1.05), textcoords=("axes fraction", "axes fraction"),
+                xy=(0, 0.5), xycoords=("axes fraction", "axes fraction"),
+                xytext=(-0.08, 0.5), textcoords=("axes fraction", "axes fraction"),
                 arrowprops=dict(arrowstyle="->", linewidth=2),
-                ha="center", va="bottom",
+                ha="center", va="center", rotation=90,
                 fontproperties=make_font(axis_label_size)
             )
 
             ax.tick_params(axis="x", labelsize=tick_size)
-            ax.tick_params(axis="y", labelsize=tick_size)
             ax.grid(grid_enabled)
 
             # ✅ Dynamic ticks with endpoints always visible
