@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import streamlit as st
 import io
+import cairosvg   # ✅ make sure 'cairosvg' is in requirements.txt
 
 st.title("Exo-up DSC Stacked Plot Dashboard (Plotly Style)")
 
@@ -140,13 +141,13 @@ if uploaded_files:
 
             st.plotly_chart(fig, use_container_width=True)
 
-            # ✅ Robust PNG download
+            # ✅ Robust PNG download using SVG → PNG conversion
             try:
-                img_bytes = pio.to_image(fig, format="png", engine="json")
-                buf = io.BytesIO(img_bytes)
+                svg_bytes = pio.to_image(fig, format="svg")
+                png_bytes = cairosvg.svg2png(bytestring=svg_bytes)
                 st.download_button(
                     label="Download Plot as PNG",
-                    data=buf.getvalue(),
+                    data=png_bytes,
                     file_name="dsc_plot.png",
                     mime="image/png"
                 )
