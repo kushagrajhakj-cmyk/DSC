@@ -147,12 +147,13 @@ if uploaded_files:
             ax.set_xlim(min_temp, max_temp)
             ax.set_xticks(tickvals)
 
-            # Extend y-limit if topmost label crosses, with margin
+            # Extend y-limit if topmost label crosses, with extra margin
             if max_label_y is not None:
                 ymin, ymax = ax.get_ylim()
                 if max_label_y > ymax:
-                    # add margin proportional to label_gap
-                    ax.set_ylim(ymin, max_label_y + (label_gap * top_margin_factor))
+                    # Add margin proportional to label_gap
+                    margin = label_gap * top_margin_factor
+                    ax.set_ylim(ymin, max_label_y + margin)
 
             st.pyplot(fig)
 
