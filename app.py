@@ -129,11 +129,11 @@ if uploaded_files:
             ax.set_ylabel("")
             ax.set_yticks([])
 
-            # Draw "Endo" with a short upward arrow above it
+            # Draw "Endo" centered with an upward arrow above it
             ax.annotate(
-                "Exo",
-                xy=(-0.08, 0.45), xycoords=("axes fraction", "axes fraction"),   # text placed mid-left
-                xytext=(-0.08, 0.7), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward a bit
+                "Endo",
+                xy=(-0.1, 0.5), xycoords=("axes fraction", "axes fraction"),   # text centered vertically
+                xytext=(-0.1, 0.65), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward
                 arrowprops=dict(arrowstyle="->", linewidth=2),
                 ha="center", va="center", rotation=90,
                 fontproperties=make_font(axis_label_size)
