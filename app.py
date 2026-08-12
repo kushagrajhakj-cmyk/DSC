@@ -102,6 +102,12 @@ if uploaded_files:
                     yanchor="bottom"
                 )
 
+            # Generate evenly spaced ticks including min & max
+            tick_step = 50  # adjust spacing here
+            tickvals = list(range(min_temp, max_temp + 1, tick_step))
+            if tickvals[-1] != max_temp:
+                tickvals.append(max_temp)  # ensure max included
+
             fig.update_layout(
                 title=dict(text=plot_title, font=dict(size=title_size, family=font_family, color="black")),
                 xaxis=dict(
@@ -112,9 +118,10 @@ if uploaded_files:
                     mirror=True,
                     zeroline=False,
                     tickcolor="black",
+                    range=[min_temp, max_temp],
                     tickmode="array",
-                    tickvals=[min_temp, max_temp],
-                    ticktext=[str(min_temp), str(max_temp)]
+                    tickvals=tickvals,
+                    ticktext=[str(t) for t in tickvals]
                 ),
                 yaxis=dict(
                     title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family, color="black")),
