@@ -55,7 +55,7 @@ if uploaded_files:
     legend_size = st.slider("Legend Font Size:", 8, 30, 15)
     label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
     label_x_offset = st.slider("Horizontal offset from y-axis:", 0.0, 2.0, 0.5, step=0.1)
-    top_margin_factor = st.slider("Extra margin factor (× label_gap):", 0.0, 5, 4.5, step=0.1)
+    top_margin_factor = st.slider("Extra margin factor (× label_gap):", 0.0, 5, step=0.1)
 
     # === Tick Spacing Control ===
     tick_step = st.selectbox("Tick spacing (°C):", [10, 20, 30, 40, 50, 100], index=1)
