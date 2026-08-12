@@ -3,7 +3,6 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import streamlit as st
 import io
-import cairosvg   # ✅ make sure 'cairosvg' is in requirements.txt
 
 st.title("Exo-up DSC Stacked Plot Dashboard (Plotly Style)")
 
@@ -139,25 +138,26 @@ if uploaded_files:
                 paper_bgcolor="white"
             )
 
+            # Show chart (with Plotly’s built-in PNG export button in modebar)
             st.plotly_chart(fig, use_container_width=True)
 
-            # ✅ Robust PNG download using SVG → PNG conversion
+            # ✅ Provide SVG and HTML download options
             try:
                 svg_bytes = pio.to_image(fig, format="svg")
-                png_bytes = cairosvg.svg2png(bytestring=svg_bytes)
                 st.download_button(
-                    label="Download Plot as PNG",
-                    data=png_bytes,
-                    file_name="dsc_plot.png",
-                    mime="image/png"
+                    label="Download Plot as SVG",
+                    data=svg_bytes,
+                    file_name="dsc_plot.svg",
+                    mime="image/svg+xml"
                 )
             except Exception:
-                st.download_button(
-                    label="Download Plot as HTML",
-                    data=fig.to_html(full_html=False),
-                    file_name="dsc_plot.html",
-                    mime="text/html"
-                )
-                st.warning("PNG export failed, falling back to HTML download.")
+                st.warning("SVG export failed.")
+
+            st.download_button(
+                label="Download Plot as HTML",
+                data=fig.to_html(full_html=False),
+                file_name="dsc_plot.html",
+                mime="text/html"
+            )
         else:
             st.warning("No data selected.")
