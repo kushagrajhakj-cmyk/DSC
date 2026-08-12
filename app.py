@@ -1,10 +1,9 @@
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.io as pio
+import matplotlib.pyplot as plt
 import streamlit as st
 import io
 
-st.title("Exo-up DSC Stacked Plot Dashboard (Plotly Style)")
+st.title("Exo-up DSC Stacked Plot Dashboard (Matplotlib Style)")
 
 # === File Upload ===
 uploaded_files = st.file_uploader(
@@ -40,6 +39,11 @@ if uploaded_files:
     min_temp, max_temp = st.slider("Temperature range (°C):", 0, 300, (0, 300))
     offset = st.number_input("Offset for stacking:", value=0.5, step=0.1)
 
+    # === Legend and Annotation Controls ===
+    st.subheader("Legend and Annotation Settings")
+    legend_size = st.slider("Legend Font Size:", 8, 30, 15)
+    label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
+
     # === Curve Order and Custom Labels ===
     st.subheader("Stacking Order, Labels, and Colors")
     curve_order = []
@@ -54,13 +58,13 @@ if uploaded_files:
     )
 
     default_labels = {0: "5 °C/min", 1: "10 °C/min", 2: "20 °C/min", 3: "30 °C/min"}
-    default_colors = {0: "#F60505", 1: "#F2DA09", 2: "#0E19E8", 3: "#F00FEC"}
+    default_colors = {0: "red", 1: "orange", 2: "blue", 3: "magenta"}
 
     custom_labels = {}
     custom_colors = {}
     for i, label in enumerate(ordered_curves):
         default_label = default_labels.get(i, label)
-        default_color = default_colors.get(i, "#000000")
+        default_color = default_colors.get(i, "black")
         custom_labels[label] = st.text_input(f"Custom legend label for {label}:", default_label)
         custom_colors[label] = st.color_picker(f"Line color for {label}:", default_color)
 
@@ -78,86 +82,49 @@ if uploaded_files:
                 curves[f"{file.name} - {sheet}"] = df
 
         if curves:
-            fig = go.Figure()
+            fig, ax = plt.subplots(figsize=(8, 6))
 
             for i, label in enumerate(ordered_curves):
                 df = curves[label]
-                fig.add_trace(go.Scatter(
-                    x=df["Temperature"],
-                    y=df["Heat Flow (Normalized)"] + i*offset,
-                    mode="lines",
-                    name=custom_labels[label],
-                    line=dict(width=line_weight, color=custom_colors[label]),
-                    showlegend=False
-                ))
-
-                # Annotation above each line
-                fig.add_annotation(
-                    x=df["Temperature"].iloc[-1],
-                    y=df["Heat Flow (Normalized)"].iloc[-1] + i*offset,
-                    text=custom_labels[label],
-                    font=dict(size=axis_label_size-2, family=font_family, color=custom_colors[label]),
-                    showarrow=False,
-                    align="left",
-                    xanchor="left",
-                    yanchor="bottom"
+                ax.plot(
+                    df["Temperature"],
+                    df["Heat Flow (Normalized)"] + i*offset,
+                    label=custom_labels[label],
+                    linewidth=line_weight,
+                    color=custom_colors[label]
+                )
+                # Annotation above line with adjustable gap
+                ax.text(
+                    df["Temperature"].iloc[-1],
+                    df["Heat Flow (Normalized)"].iloc[-1] + i*offset + label_gap,
+                    custom_labels[label],
+                    fontsize=legend_size,
+                    family=font_family,
+                    color=custom_colors[label],
+                    va="bottom", ha="left"
                 )
 
-            # Generate evenly spaced ticks including min & max
-            tick_step = 50  # adjust spacing here
-            tickvals = list(range(min_temp, max_temp + 1, tick_step))
-            if tickvals[-1] != max_temp:
-                tickvals.append(max_temp)
+            ax.set_title(plot_title, fontsize=title_size, family=font_family)
+            ax.set_xlabel(xlabel, fontsize=axis_label_size, family=font_family)
+            ax.set_ylabel(ylabel, fontsize=axis_label_size, family=font_family)
+            ax.tick_params(axis="x", labelsize=tick_size)
+            ax.tick_params(axis="y", labelsize=tick_size)
+            ax.grid(grid_enabled)
 
-            fig.update_layout(
-                title=dict(text=plot_title, font=dict(size=title_size, family=font_family, color="black")),
-                xaxis=dict(
-                    title=dict(text=xlabel, font=dict(size=axis_label_size, family=font_family, color="black")),
-                    tickfont=dict(size=tick_size, family=font_family, color="black"),
-                    showgrid=grid_enabled,
-                    linecolor="black",
-                    mirror=True,
-                    zeroline=False,
-                    tickcolor="black",
-                    range=[min_temp, max_temp],
-                    tickmode="array",
-                    tickvals=tickvals,
-                    ticktext=[str(t) for t in tickvals]
-                ),
-                yaxis=dict(
-                    title=dict(text=ylabel, font=dict(size=axis_label_size, family=font_family, color="black")),
-                    tickfont=dict(size=tick_size, family=font_family, color="black"),
-                    showgrid=grid_enabled,
-                    showticklabels=False,
-                    linecolor="black",
-                    mirror=True,
-                    zeroline=False,
-                    tickcolor="black"
-                ),
-                plot_bgcolor="white",
-                paper_bgcolor="white"
-            )
+            # Force min/max ticks on x-axis
+            ax.set_xlim(min_temp, max_temp)
+            ax.set_xticks(range(min_temp, max_temp+1, 50))
 
-            # Show chart (with Plotly’s built-in PNG export button in modebar)
-            st.plotly_chart(fig, use_container_width=True)
+            st.pyplot(fig)
 
-            # ✅ Provide SVG and HTML download options
-            try:
-                svg_bytes = pio.to_image(fig, format="svg")
-                st.download_button(
-                    label="Download Plot as SVG",
-                    data=svg_bytes,
-                    file_name="dsc_plot.svg",
-                    mime="image/svg+xml"
-                )
-            except Exception:
-                st.warning("SVG export failed.")
-
+            # ✅ Export PNG option
+            buf = io.BytesIO()
+            fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
             st.download_button(
-                label="Download Plot as HTML",
-                data=fig.to_html(full_html=False),
-                file_name="dsc_plot.html",
-                mime="text/html"
+                label="Download Plot as PNG",
+                data=buf.getvalue(),
+                file_name="dsc_plot.png",
+                mime="image/png"
             )
         else:
             st.warning("No data selected.")
