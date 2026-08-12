@@ -55,7 +55,8 @@ if uploaded_files:
     legend_size = st.slider("Legend Font Size:", 8, 30, 15)
     label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
     label_x_offset = st.slider("Horizontal offset from y-axis:", 0.0, 2.0, 0.5, step=0.1)
-    top_margin_factor = st.slider("Extra margin factor (× label_gap):", 0.0, 5, 3, step=0.5)
+    # ✅ Fixed slider: all values are floats, max = 5.0
+    top_margin_factor = st.slider("Extra margin factor (× label_gap):", 0.0, 5.0, 3.0, step=0.5)
 
     # === Tick Spacing Control ===
     tick_step = st.selectbox("Tick spacing (°C):", [10, 20, 30, 40, 50, 100], index=1)
@@ -100,7 +101,6 @@ if uploaded_files:
         if curves:
             fig, ax = plt.subplots(figsize=(8, 6))
 
-            max_label_y = None  # track highest label position
             max_curve_y = None  # track highest curve position
 
             for i, label in enumerate(ordered_curves):
@@ -127,8 +127,6 @@ if uploaded_files:
                     color=custom_colors[label],
                     va="bottom", ha="left"
                 )
-                if max_label_y is None or y_pos > max_label_y:
-                    max_label_y = y_pos
 
             # ❌ Remove plot title
             ax.set_title("")
