@@ -1,9 +1,17 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib import font_manager as fm
 import streamlit as st
 import io
 
 st.title("Exo-up DSC Stacked Plot Dashboard (Matplotlib Style)")
+
+# ✅ Try to set Times New Roman globally
+try:
+    mpl.rcParams['font.family'] = 'Times New Roman'
+except Exception:
+    st.warning("Times New Roman not found, falling back to default font.")
 
 # === File Upload ===
 uploaded_files = st.file_uploader(
@@ -28,7 +36,6 @@ if uploaded_files:
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
     ylabel = st.text_input("Y-axis Label:", "Heat flow (mW) (Exo up)")
 
-    font_family = st.selectbox("Font Family:", ["Times New Roman", "Arial", "Calibri", "Helvetica"], index=0)
     title_size = st.slider("Title Font Size:", 8, 30, 25)
     axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25)
     tick_size = st.slider("Axis Tick Font Size:", 6, 25, 20)
@@ -100,14 +107,13 @@ if uploaded_files:
                     df["Heat Flow (Normalized)"].iloc[-1] + i*offset + label_gap,
                     custom_labels[label],
                     fontsize=legend_size,
-                    family=font_family,
                     color=custom_colors[label],
                     va="bottom", ha="left"
                 )
 
-            ax.set_title(plot_title, fontsize=title_size, family=font_family)
-            ax.set_xlabel(xlabel, fontsize=axis_label_size, family=font_family)
-            ax.set_ylabel(ylabel, fontsize=axis_label_size, family=font_family)
+            ax.set_title(plot_title, fontsize=title_size)
+            ax.set_xlabel(xlabel, fontsize=axis_label_size)
+            ax.set_ylabel(ylabel, fontsize=axis_label_size)
             ax.tick_params(axis="x", labelsize=tick_size)
             ax.tick_params(axis="y", labelsize=tick_size)
             ax.grid(grid_enabled)
