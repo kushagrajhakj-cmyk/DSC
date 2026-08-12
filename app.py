@@ -1,10 +1,21 @@
 import pandas as pd
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from matplotlib import font_manager as fm
 import streamlit as st
-from streamlit_plotly_events import plotly_events
 import io
 
-st.title("Interactive DSC Plot Dashboard (Plotly Style)")
+st.title("Exo-up DSC Stacked Plot Dashboard (Matplotlib Style)")
+
+# === Font Handling ===
+# Try to load Times New Roman if available, else fallback
+available_fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
+times_new_roman = None
+for f in available_fonts:
+    if "Times New Roman" in f:
+        times_new_roman = fm.FontProperties(fname=f)
+        break
+if times_new_roman is None:
+    times_new_roman = fm.FontProperties(family="serif")
 
 # === File Upload ===
 uploaded_files = st.file_uploader(
@@ -25,13 +36,27 @@ if uploaded_files:
     # === Customization Options ===
     st.subheader("Plot Customization")
 
+    plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
-    ylabel = "Heat flow (mW)"  # fixed, no ticks shown
-    title_text = "↓ Endo"       # downward arrow with Endo
+    ylabel = st.text_input("Y-axis Label:", "Heat flow (mW) (Exo up)")
+
+    title_size = st.slider("Title Font Size:", 8, 30, 25)
+    axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25)
+    tick_size = st.slider("Axis Tick Font Size:", 6, 25, 20)
 
     line_weight = st.slider("Line Width:", 1, 5, 2)
+    grid_enabled = st.checkbox("Show Grid", True)
+
     min_temp, max_temp = st.slider("Temperature range (°C):", 0, 300, (0, 300))
-    tick_step = st.selectbox("Tick spacing (°C):", [25, 50, 100], index=1)
+    offset = st.number_input("Offset for stacking:", value=0.5, step=0.1)
+
+    # === Legend and Annotation Controls ===
+    st.subheader("Legend and Annotation Settings")
+    legend_size = st.slider("Legend Font Size:", 8, 30, 15)
+    label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
+
+    # === Tick Spacing Control ===
+    tick_step = st.selectbox("Tick spacing (°C):", [10, 20, 30, 40, 50, 100], index=1)
 
     # === Curve Order and Custom Labels ===
     st.subheader("Stacking Order, Labels, and Colors")
@@ -71,68 +96,46 @@ if uploaded_files:
                 curves[f"{file.name} - {sheet}"] = df
 
         if curves:
-            fig = go.Figure()
+            fig, ax = plt.subplots(figsize=(8, 6))
 
             for i, label in enumerate(ordered_curves):
                 df = curves[label]
-                fig.add_trace(go.Scatter(
-                    x=df["Temperature"],
-                    y=df["Heat Flow (Normalized)"] + i*0.5,  # stacking offset
-                    mode="lines",
-                    name=custom_labels[label],
-                    line=dict(width=line_weight, color=custom_colors[label])
-                ))
+                ax.plot(
+                    df["Temperature"],
+                    df["Heat Flow (Normalized)"] + i*offset,
+                    linewidth=line_weight,
+                    color=custom_colors[label]
+                )
+                # Annotation above line with adjustable gap
+                ax.text(
+                    df["Temperature"].iloc[-1],
+                    df["Heat Flow (Normalized)"].iloc[-1] + i*offset + label_gap,
+                    custom_labels[label],
+                    fontsize=legend_size,
+                    fontproperties=times_new_roman,
+                    color=custom_colors[label],
+                    va="bottom", ha="left"
+                )
 
-            # Dynamic ticks with endpoints
+            ax.set_title(plot_title, fontsize=title_size, fontproperties=times_new_roman)
+            ax.set_xlabel(xlabel, fontsize=axis_label_size, fontproperties=times_new_roman)
+            ax.set_ylabel(ylabel, fontsize=axis_label_size, fontproperties=times_new_roman)
+            ax.tick_params(axis="x", labelsize=tick_size)
+            ax.tick_params(axis="y", labelsize=tick_size)
+            ax.grid(grid_enabled)
+
+            # ✅ Dynamic ticks with endpoints always visible
             tickvals = list(range(min_temp, max_temp+1, tick_step))
             if tickvals[-1] != max_temp:
                 tickvals.append(max_temp)
+            ax.set_xlim(min_temp, max_temp)
+            ax.set_xticks(tickvals)
 
-            fig.update_layout(
-                title=dict(text=title_text, font=dict(size=20, family="Times New Roman", color="black")),
-                xaxis=dict(
-                    title=dict(text=xlabel, font=dict(size=18, family="Times New Roman", color="black")),
-                    tickmode="array",
-                    tickvals=tickvals,
-                    ticktext=[str(t) for t in tickvals],
-                    range=[min_temp, max_temp],
-                    linecolor="black",
-                    mirror=True,
-                    zeroline=False
-                ),
-                yaxis=dict(
-                    title=dict(text=ylabel, font=dict(size=18, family="Times New Roman", color="black")),
-                    showticklabels=False,  # ✅ no y-axis ticks
-                    linecolor="black",
-                    mirror=True,
-                    zeroline=False
-                ),
-                plot_bgcolor="white",
-                paper_bgcolor="white"
-            )
-
-            # Show chart and capture clicks
-            selected_points = plotly_events(fig, click_event=True, hover_event=False)
-
-            if selected_points:
-                x_val = selected_points[0]["x"]
-                y_val = selected_points[0]["y"]
-
-                # Add annotation at clicked point
-                fig.add_annotation(
-                    x=x_val,
-                    y=y_val,
-                    text="Custom Label",
-                    font=dict(size=16, family="Times New Roman", color="black"),
-                    showarrow=True,
-                    arrowhead=2
-                )
-
-            st.plotly_chart(fig, use_container_width=True)
+            st.pyplot(fig)
 
             # ✅ Export PNG option
             buf = io.BytesIO()
-            fig.write_image(buf, format="png")
+            fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
             st.download_button(
                 label="Download Plot as PNG",
                 data=buf.getvalue(),
