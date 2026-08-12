@@ -54,6 +54,7 @@ if uploaded_files:
     st.subheader("Legend and Annotation Settings")
     legend_size = st.slider("Legend Font Size:", 8, 30, 15)
     label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
+    label_x_offset = st.slider("Horizontal offset from y-axis:", 0.0, 2.0, 0.5, step=0.1)
 
     # === Tick Spacing Control ===
     tick_step = st.selectbox("Tick spacing (°C):", [10, 20, 30, 40, 50, 100], index=1)
@@ -98,6 +99,8 @@ if uploaded_files:
         if curves:
             fig, ax = plt.subplots(figsize=(8, 6))
 
+            max_y_val = None  # track highest label position
+
             for i, label in enumerate(ordered_curves):
                 df = curves[label]
                 ax.plot(
@@ -106,16 +109,20 @@ if uploaded_files:
                     linewidth=line_weight,
                     color=custom_colors[label]
                 )
-                # Place legend text at the leftmost side of the curve
+                # Place legend text inside plot near left side
+                y_pos = df["Heat Flow (Normalized)"].iloc[0] + i*offset + label_gap
+                x_pos = min_temp + label_x_offset
                 ax.text(
-                    df["Temperature"].iloc[0],   # leftmost x-value
-                    df["Heat Flow (Normalized)"].iloc[0] + i*offset + label_gap,
+                    x_pos,
+                    y_pos,
                     custom_labels[label],
                     fontsize=legend_size,
                     fontproperties=make_font(legend_size),
                     color=custom_colors[label],
-                    va="bottom", ha="right"
+                    va="bottom", ha="left"
                 )
+                if max_y_val is None or y_pos > max_y_val:
+                    max_y_val = y_pos
 
             # ❌ Remove plot title
             ax.set_title("")
@@ -138,6 +145,12 @@ if uploaded_files:
                 tickvals.append(max_temp)
             ax.set_xlim(min_temp, max_temp)
             ax.set_xticks(tickvals)
+
+            # Extend y-limit if topmost label crosses
+            if max_y_val is not None:
+                ymin, ymax = ax.get_ylim()
+                if max_y_val > ymax:
+                    ax.set_ylim(ymin, max_y_val + label_gap)
 
             st.pyplot(fig)
 
