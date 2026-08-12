@@ -39,10 +39,8 @@ if uploaded_files:
     # === Customization Options ===
     st.subheader("Plot Customization")
 
-    plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
 
-    title_size = st.slider("Title Font Size:", 8, 30, 25)
     axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25)
     tick_size = st.slider("Axis Tick Font Size:", 6, 25, 20)
 
@@ -119,25 +117,17 @@ if uploaded_files:
                     va="bottom", ha="left"
                 )
 
-            # Title with correct font size
-            ax.set_title(plot_title, fontproperties=make_font(title_size))
+            # ❌ Remove plot title
+            ax.set_title("")
 
             # X-axis label
             ax.set_xlabel(xlabel, fontproperties=make_font(axis_label_size))
 
-            # Clear default y-axis label and ticks
-            ax.set_ylabel("")
-            ax.set_yticks([])
+            # Y-axis label only text "Heat Flow (mW) Exo up"
+            ax.set_ylabel("Heat Flow (mW) Exo up", fontproperties=make_font(axis_label_size))
 
-            # Draw "Endo" centered with an upward arrow above it
-            ax.annotate(
-                "Endo",
-                xy=(-0.1, 0.5), xycoords=("axes fraction", "axes fraction"),   # text centered vertically
-                xytext=(-0.1, 0.65), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward
-                #arrowprops=dict(arrowstyle="->", linewidth=2),
-                ha="center", va="center", rotation=90,
-                fontproperties=make_font(axis_label_size)
-            )
+            # Remove y-axis tick values
+            ax.set_yticks([])
 
             ax.tick_params(axis="x", labelsize=tick_size)
             ax.grid(grid_enabled)
