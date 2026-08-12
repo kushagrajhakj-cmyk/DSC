@@ -58,13 +58,14 @@ if uploaded_files:
     )
 
     default_labels = {0: "5 °C/min", 1: "10 °C/min", 2: "20 °C/min", 3: "30 °C/min"}
-    default_colors = {0: "red", 1: "orange", 2: "blue", 3: "magenta"}
+    # ✅ Use hex codes for color picker compatibility
+    default_colors = {0: "#FF0000", 1: "#FFA500", 2: "#0000FF", 3: "#FF00FF"}
 
     custom_labels = {}
     custom_colors = {}
     for i, label in enumerate(ordered_curves):
         default_label = default_labels.get(i, label)
-        default_color = default_colors.get(i, "black")
+        default_color = default_colors.get(i, "#000000")
         custom_labels[label] = st.text_input(f"Custom legend label for {label}:", default_label)
         custom_colors[label] = st.color_picker(f"Line color for {label}:", default_color)
 
