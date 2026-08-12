@@ -7,15 +7,19 @@ import io
 st.title("Exo-up DSC Stacked Plot Dashboard (Matplotlib Style)")
 
 # === Font Handling ===
-# Try to load Times New Roman if available, else fallback
 available_fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
-times_new_roman = None
+times_new_roman_path = None
 for f in available_fonts:
     if "Times New Roman" in f:
-        times_new_roman = fm.FontProperties(fname=f)
+        times_new_roman_path = f
         break
-if times_new_roman is None:
-    times_new_roman = fm.FontProperties(family="serif")
+
+# Create FontProperties with size for title
+def make_font(size):
+    if times_new_roman_path:
+        return fm.FontProperties(fname=times_new_roman_path, size=size)
+    else:
+        return fm.FontProperties(family="serif", size=size)
 
 # === File Upload ===
 uploaded_files = st.file_uploader(
@@ -38,7 +42,6 @@ if uploaded_files:
 
     plot_title = st.text_input("Plot Title:", "Exo-up DSC stacked plot")
     xlabel = st.text_input("X-axis Label:", "Temperature (°C)")
-    ylabel = st.text_input("Y-axis Label:", "Heat flow (mW) (Exo up)")
 
     title_size = st.slider("Title Font Size:", 8, 30, 25)
     axis_label_size = st.slider("Axis Label Font Size:", 8, 30, 25)
@@ -112,14 +115,28 @@ if uploaded_files:
                     df["Heat Flow (Normalized)"].iloc[-1] + i*offset + label_gap,
                     custom_labels[label],
                     fontsize=legend_size,
-                    fontproperties=times_new_roman,
+                    fontproperties=make_font(legend_size),
                     color=custom_colors[label],
                     va="bottom", ha="left"
                 )
 
-            ax.set_title(plot_title, fontsize=title_size, fontproperties=times_new_roman)
-            ax.set_xlabel(xlabel, fontsize=axis_label_size, fontproperties=times_new_roman)
-            ax.set_ylabel(ylabel, fontsize=axis_label_size, fontproperties=times_new_roman)
+            # Title with correct font size
+            ax.set_title(plot_title, fontproperties=make_font(title_size))
+
+            # X-axis label
+            ax.set_xlabel(xlabel, fontproperties=make_font(axis_label_size))
+
+            # Clear default y-axis label and draw upward arrow with "Endo"
+            ax.set_ylabel("")
+            ax.annotate(
+                "Endo",
+                xy=(0, 0), xycoords=("axes fraction", "axes fraction"),
+                xytext=(0, 1.05), textcoords=("axes fraction", "axes fraction"),
+                arrowprops=dict(arrowstyle="->", linewidth=2),
+                ha="center", va="bottom",
+                fontproperties=make_font(axis_label_size)
+            )
+
             ax.tick_params(axis="x", labelsize=tick_size)
             ax.tick_params(axis="y", labelsize=tick_size)
             ax.grid(grid_enabled)
