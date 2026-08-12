@@ -133,8 +133,8 @@ if uploaded_files:
             ax.annotate(
                 "Heat flow (mW) (Exo down)",
                 xy=(-0.1, 0.5), xycoords=("axes fraction", "axes fraction"),   # text centered vertically
-                xytext=(-0.1, 0.7), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward
-                arrowprops=dict(arrowstyle="->", linewidth=2),
+                xytext=(-0.1, 0.65), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward
+                #arrowprops=dict(arrowstyle="->", linewidth=2),
                 ha="center", va="center", rotation=90,
                 fontproperties=make_font(axis_label_size)
             )
