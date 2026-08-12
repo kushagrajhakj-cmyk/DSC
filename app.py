@@ -56,7 +56,7 @@ if uploaded_files:
     label_gap = st.slider("Gap between line and label:", 0.0, 2.0, 0.3, step=0.1)
 
     # === Tick Spacing Control ===
-    tick_step = st.selectbox("Tick spacing (°C):", [25, 50, 100], index=1)
+    tick_step = st.selectbox("Tick spacing (°C):", [10, 20, 30, 40, 50, 100], index=1)
 
     # === Curve Order and Custom Labels ===
     st.subheader("Stacking Order, Labels, and Colors")
