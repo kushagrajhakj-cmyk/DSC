@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 import streamlit as st
 import io
 
@@ -106,7 +107,7 @@ if uploaded_files:
             tick_step = 50  # adjust spacing here
             tickvals = list(range(min_temp, max_temp + 1, tick_step))
             if tickvals[-1] != max_temp:
-                tickvals.append(max_temp)  # ensure max included
+                tickvals.append(max_temp)
 
             fig.update_layout(
                 title=dict(text=plot_title, font=dict(size=title_size, family=font_family, color="black")),
@@ -139,13 +140,23 @@ if uploaded_files:
 
             st.plotly_chart(fig, use_container_width=True)
 
-            buf = io.BytesIO()
-            fig.write_image(buf, format="png")
-            st.download_button(
-                label="Download Plot as PNG",
-                data=buf.getvalue(),
-                file_name="dsc_plot.png",
-                mime="image/png"
-            )
+            # Robust download handling
+            try:
+                img_bytes = pio.to_image(fig, format="png", engine="json")
+                buf = io.BytesIO(img_bytes)
+                st.download_button(
+                    label="Download Plot as PNG",
+                    data=buf.getvalue(),
+                    file_name="dsc_plot.png",
+                    mime="image/png"
+                )
+            except Exception:
+                st.download_button(
+                    label="Download Plot as HTML",
+                    data=fig.to_html(full_html=False),
+                    file_name="dsc_plot.html",
+                    mime="text/html"
+                )
+                st.warning("PNG export failed, falling back to HTML download.")
         else:
             st.warning("No data selected.")
