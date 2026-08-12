@@ -131,7 +131,7 @@ if uploaded_files:
 
             # Draw "Endo" centered with an upward arrow above it
             ax.annotate(
-                "Heat flow (mW) (Exo down)",
+                "Endo",
                 xy=(-0.1, 0.5), xycoords=("axes fraction", "axes fraction"),   # text centered vertically
                 xytext=(-0.1, 0.65), textcoords=("axes fraction", "axes fraction"),  # arrow goes upward
                 #arrowprops=dict(arrowstyle="->", linewidth=2),
